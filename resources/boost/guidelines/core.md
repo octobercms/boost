@@ -201,6 +201,19 @@ Command | Description
 - `php artisan october:fresh` - delete the demo theme and start fresh
 - `php artisan plugin:refresh Acme.Blog` - refresh a plugin's migrations
 
+### Testing
+
+- `php artisan plugin:test Acme.Blog` - run all tests for a plugin
+- `php artisan plugin:test Acme.Blog --filter=PostTest` - run a specific test class
+- `php artisan plugin:test Acme.Blog --filter=testCreatePost` - run a specific test method
+
+## Running Plugin Tests
+
+- **Always use `php artisan plugin:test`** to run plugin tests. Do not use `php vendor/bin/phpunit` directly — the root `phpunit.xml` overrides `PLUGINS_PATH` to a fixtures directory, which prevents plugin dependencies from being found and migrated.
+- The `plugin:test` command automatically locates the plugin's own `phpunit.xml` and passes it as the `--configuration` to PHPUnit.
+- All PHPUnit options can be passed through: `--filter`, `--stop-on-failure`, `--group`, etc.
+- Plugin tests extend `PluginTestCase` which auto-migrates core modules, the current plugin, and all its `$require` dependencies into an in-memory SQLite database.
+
 ## Conventions
 
 - Check sibling files for existing patterns before writing new code.
