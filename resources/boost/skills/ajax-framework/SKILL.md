@@ -108,12 +108,12 @@ data-request-update="{ 'list-item': '=[data-field-name=address]' }"
 Use the `{% ajaxPartial %}` tag to create self-updating partials:
 
 ```twig
-{% ajaxPartial 'mytime' %}
+{% ajaxPartial 'mytime' body %}
     The time is {{ 'now'|date('H:i:s') }}
     <button data-request="onRefreshTime" data-request-update="{ _self: true }">
         Refresh
     </button>
-{% endajaxPartial %}
+{% endpartial %}
 ```
 
 Update using `{ _self: true }` or `{ mytime: true }` (the partial name).
@@ -570,10 +570,10 @@ Note: The backend `fileupload` form widget handles file uploads automatically vi
 Partials have limited AJAX capability by default. Use the `{% ajaxPartial %}` tag to register handlers from within a partial:
 
 ```twig
-{% ajaxPartial 'my-counter' %}
+{% ajaxPartial 'my-counter' body %}
     <span>Count: {{ count }}</span>
     <button data-request="onIncrement" data-request-update="{ _self: true }">+1</button>
-{% endajaxPartial %}
+{% endpartial %}
 ```
 
 ## Common Pitfalls
