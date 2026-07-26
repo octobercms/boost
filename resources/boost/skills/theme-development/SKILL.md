@@ -38,11 +38,12 @@ themes/mytheme/
 
 CMS templates (pages, layouts, partials) have up to three sections separated by `==`:
 
-1. **Configuration** (INI format) - template parameters
+1. **Configuration** (INI format) - template parameters. Files start with a `##` line (editor hint; optional when parsing, always written on save).
 2. **PHP code** (optional) - server-side logic
 3. **Twig markup** - the rendered HTML
 
 ```
+##
 url = "/blog"
 layout = "default"
 title = "Blog"
@@ -68,6 +69,7 @@ function onStart()
 Pages define URLs and are the entry point for rendering. Configuration properties:
 
 ```ini
+##
 url = "/blog/post/:slug"
 layout = "default"
 title = "Blog Post"
@@ -94,6 +96,7 @@ Error pages are defined by their URL, not by filename:
 - A page with URL `/error` is displayed when an unhandled error occurs (when debug mode is off).
 
 ```ini
+##
 url = "/404"
 layout = "default"
 title = "Page Not Found"
