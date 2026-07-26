@@ -87,7 +87,6 @@ slug = "{{ :slug }}"
 - URL parameters support regex validation: `:id|^[0-9]+$`.
 - Wildcard parameters use `:slug*` to capture remaining segments.
 - Components are attached in the configuration section using `[componentName]`.
-- When creating pages with tools, prefer structured fields (`title`, `url`, `markup`, `settings` as JSON) over raw file `content`. October adds the leading `##` automatically on save.
 
 ### Error Pages
 
