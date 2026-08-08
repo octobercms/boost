@@ -394,7 +394,7 @@ In rare cases where you want to use a component's default markup but customize a
 
 CMS components can render with Vue 3. October ships the library and the wiring; you mount the app.
 
-The component registers a Vue component in `init()`, so it is registered before `{% vuecomponents %}` renders:
+Scaffold the Vue component class with `create:vuecomponent Acme.Blog PostViewer`. It extends `System\Classes\VueComponentBase` and is three files (PHP class, ESM module `assets/js/<name>.js`, partial `partials/_<name>.php`). The CMS component then registers it in `init()`, which makes it available during both page renders and AJAX requests (before `{% vuecomponents %}` renders):
 
 ```php
 public function init()
@@ -421,6 +421,7 @@ The theme opts in with two tags. `{% framework vue %}` loads the Vue library (ex
 
 - Place `{% vuecomponents %}` before your mounting script so the registration module runs first.
 - To bring your own Vue (bundle or CDN), omit `{% framework vue %}` and expose it as `window.Vue`.
+- Frontend component ESM files must read the `Vue` global (`const { ref } = Vue`), not `import ... from 'vue'`; bare imports only resolve in the backend panel.
 - Mounting, turbo re-mounts, and AJAX partial updates inside Vue-managed DOM are the developer's responsibility, using `oc.createVueApp` / `oc.mountVueApp`.
 
 ## Twig Reference

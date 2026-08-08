@@ -161,25 +161,70 @@ $model->bindEvent('model.afterSave', function () use ($model) {
 });
 ```
 
-## Vue Components in CMS
+## Vue Components
 
-CMS components can register Vue 3 components for the frontend. October provides the library and the wiring; mounting apps is the developer's job.
+October provides a Vue 3 component framework shared by the backend panel and the CMS. A component is three files: a PHP class, an ESM JavaScript module, and a template partial.
 
-A CMS component registers a Vue component during its life cycle:
+### Authoring the class
+
+Scaffold with `create:vuecomponent Acme.Blog PostEditor`. The class extends `System\Classes\VueComponentBase` and lives in `vuecomponents/`:
+
+```php
+namespace Acme\Blog\VueComponents;
+
+use System\Classes\VueComponentBase;
+
+class PostEditor extends VueComponentBase
+{
+    /**
+     * @var string componentName is the Vue component tag name (kebab-case).
+     */
+    protected $componentName = 'acme-blog-post-editor';
+
+    /**
+     * @var array require lists dependent Vue component classes.
+     */
+    protected $require = [
+        \Backend\VueComponents\Modal::class,
+    ];
+}
+```
+
+The generated files follow a fixed layout, derived from the lowercased class name:
+
+```
+vuecomponents/
+├── PostEditor.php                      ← Component class
+└── posteditor/
+    ├── assets/js/posteditor.js         ← ESM module (export default { ... })
+    ├── assets/css/posteditor.css       ← Optional, auto-loaded if present
+    └── partials/_posteditor.php        ← Template partial
+```
+
+- `$componentName` is the kebab-case HTML tag; namespace it to avoid collisions.
+- `$require` lists dependency component classes, registered automatically before this one.
+- Override `prepareVars()` to pass PHP data into the partial, and `registerSubcomponents()` to add nested components (each subcomponent needs its own `.js` and `_partial.php`).
+- The ESM module exports a Vue Options-API definition; the template is the partial, not an inline `template` string.
+
+### Registering the component
+
+Backend controllers register in the constructor or an action; CMS components register in `init()`:
 
 ```php
 class MyComponent extends ComponentBase
 {
     public function init()
     {
-        $this->registerVueComponent(\Acme\Blog\VueComponents\PostViewer::class);
+        $this->registerVueComponent(\Acme\Blog\VueComponents\PostEditor::class);
     }
 }
 ```
 
-The Vue component class extends `System\Classes\VueComponentBase` and defines a partial template (`partials/_<name>.php`), an ESM module (`assets/js/<name>.js`), optional CSS, subcomponents, and `$require` dependencies.
+Registering in `init()` makes the component available for both page renders and AJAX requests.
 
-The theme opts in with two Twig tags:
+### Frontend wiring (CMS only)
+
+The backend layout outputs registered components automatically. On the frontend, the theme opts in with two Twig tags:
 
 ```twig
 {% framework vue %}
@@ -224,6 +269,7 @@ Command | Description
 `create:model Acme.Blog Post` | Model with migration and YAML configs
 `create:controller Acme.Blog Posts` | Backend controller with views
 `create:component Acme.Blog BlogPost` | CMS component
+`create:vuecomponent Acme.Blog PostEditor` | Vue 3 component (backend or CMS)
 `create:command Acme.Blog MyCommand` | Console command
 `create:migration Acme.Blog AddStatusColumn` | Migration file
 `create:formwidget Acme.Blog MyWidget` | Custom form widget

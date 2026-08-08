@@ -19,6 +19,7 @@ Command | Creates
 `create:model Acme.Blog Post` | Model with migration and YAML configs
 `create:controller Acme.Blog Posts` | Backend controller with views
 `create:component Acme.Blog BlogPost` | CMS component
+`create:vuecomponent Acme.Blog PostEditor` | Vue 3 component (backend or CMS)
 `create:command Acme.Blog MyCommand` | Console command
 `create:migration Acme.Blog AddStatusColumn` | Migration file
 `create:formwidget Acme.Blog MyWidget` | Custom form widget
