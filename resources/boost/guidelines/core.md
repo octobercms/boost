@@ -19,6 +19,7 @@ October CMS is built on these pillars:
 - **Backend** - admin panel powered by controller behaviors (FormController, ListController, RelationController) with YAML-driven configuration.
 - **Tailor** - headless CMS feature using YAML blueprints to define content structures without writing code.
 - **AJAX Framework** - built-in AJAX system using `data-request` attributes or the `jax` JavaScript API to call server-side handlers.
+- **Vue Components** - opt-in Vue 3 rendering for CMS components, using the `{% framework vue %}` and `{% vuecomponents %}` Twig tags with the `oc.createVueApp` / `oc.mountVueApp` factory.
 
 ## Plugin Structure
 
@@ -159,6 +160,45 @@ $model->bindEvent('model.afterSave', function () use ($model) {
     // Respond to save
 });
 ```
+
+## Vue Components in CMS
+
+CMS components can register Vue 3 components for the frontend. October provides the library and the wiring; mounting apps is the developer's job.
+
+A CMS component registers a Vue component during its life cycle:
+
+```php
+class MyComponent extends ComponentBase
+{
+    public function init()
+    {
+        $this->registerVueComponent(\Acme\Blog\VueComponents\PostViewer::class);
+    }
+}
+```
+
+The Vue component class extends `System\Classes\VueComponentBase` and defines a partial template (`partials/_<name>.php`), an ESM module (`assets/js/<name>.js`), optional CSS, subcomponents, and `$require` dependencies.
+
+The theme opts in with two Twig tags:
+
+```twig
+{% framework vue %}
+
+<div id="app">
+    <acme-blog-post-viewer :post-id="7"></acme-blog-post-viewer>
+</div>
+
+{% vuecomponents %}
+
+<script type="module">
+    oc.mountVueApp('#app');
+</script>
+```
+
+- `{% framework vue %}` ships the Vue library only, exposed as the `window.Vue` global. Omit it to bring your own Vue (bundle or CDN) exposed as `window.Vue`.
+- `{% vuecomponents %}` ships the client factory (`oc.createVueApp` / `oc.mountVueApp`) and the registered component templates. Place it before your mounting script.
+- Frontend component ESM files must read the `Vue` global (no importmap on the frontend), not `import ... from 'vue'`.
+- AJAX partials that register components are wired automatically; the page must already carry the library and `{% vuecomponents %}`.
 
 ## Settings Models
 

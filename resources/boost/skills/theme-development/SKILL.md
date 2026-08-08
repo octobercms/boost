@@ -142,6 +142,8 @@ Key Twig tags:
 - `{% scripts %}` - outputs registered JS
 - `{% framework %}` - includes the AJAX framework
 - `{% framework extras %}` - includes AJAX with validation, loading indicators, flash messages
+- `{% framework vue %}` - includes the Vue 3 library (exposed as `window.Vue`) for CMS components
+- `{% vuecomponents %}` - outputs the Vue client factory and any registered CMS Vue components
 
 ## Page Execution Lifecycle
 
@@ -388,6 +390,39 @@ For quick prototyping, you can render this default markup with `{% component 'bl
 
 In rare cases where you want to use a component's default markup but customize a specific partial within it, you can create a file at `partials/{alias}/partial-name.htm` in your theme. This is a niche feature for components with complex internal structure. In most cases, writing your own markup directly is simpler and more flexible.
 
+### Vue Components
+
+CMS components can render with Vue 3. October ships the library and the wiring; you mount the app.
+
+The component registers a Vue component in `init()`, so it is registered before `{% vuecomponents %}` renders:
+
+```php
+public function init()
+{
+    $this->registerVueComponent(\Acme\Blog\VueComponents\PostViewer::class);
+}
+```
+
+The theme opts in with two tags. `{% framework vue %}` loads the Vue library (exposed as the `window.Vue` global), and `{% vuecomponents %}` loads the client factory plus the registered component templates:
+
+```twig
+{% framework vue %}
+
+<div id="app">
+    <acme-blog-post-viewer :post-id="7"></acme-blog-post-viewer>
+</div>
+
+{% vuecomponents %}
+
+<script type="module">
+    oc.mountVueApp('#app');
+</script>
+```
+
+- Place `{% vuecomponents %}` before your mounting script so the registration module runs first.
+- To bring your own Vue (bundle or CDN), omit `{% framework vue %}` and expose it as `window.Vue`.
+- Mounting, turbo re-mounts, and AJAX partial updates inside Vue-managed DOM are the developer's responsibility, using `oc.createVueApp` / `oc.mountVueApp`.
+
 ## Twig Reference
 
 ### Variables
@@ -487,6 +522,8 @@ Variable | Description
 {% scripts %}
 {% framework %}
 {% framework extras %}
+{% framework vue %}
+{% vuecomponents %}
 {% flash %}
     <p class="flash-{{ type }}">
         {{ message }}
