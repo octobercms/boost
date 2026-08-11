@@ -285,7 +285,8 @@ Command | Description
 
 - `php artisan october:migrate` - run all plugin migrations
 - `php artisan october:fresh` - delete the demo theme and start fresh
-- `php artisan plugin:refresh Acme.Blog` - refresh a plugin's migrations
+- `php artisan plugin:refresh Acme.Blog` - rollback and rebuild a plugin's migrations
+- `php artisan plugin:refresh Acme.Blog --rollback=1.2.3` - rollback to a specific version (run `october:migrate` after to reapply)
 
 ### Testing
 
