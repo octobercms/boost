@@ -518,6 +518,18 @@ $vars = ['title' => $post->title, 'site_name' => 'My Blog'];
 
 Register templates in Plugin.php with `registerMailTemplates()` (see above).
 
+### Translating Mail Templates
+
+When using multisite with different locales, translate a registered mail view by placing a copy in a subdirectory named after the locale (`views/mail/fr/post-notification.htm`), including its subject line. Templates customized in the admin panel store translations on the subject and content fields directly.
+
+The message locale is specified for the whole send by passing `_current_locale` with the message data; without it, the active site's locale applies. Queued messages capture the locale automatically.
+
+```php
+\Mail::sendTo('user@example.com', 'acme.blog::mail.post-notification', $vars + [
+    '_current_locale' => 'fr',
+]);
+```
+
 ## Common Pitfalls
 
 - Always use `PluginBase` not Laravel's `ServiceProvider` for plugin registration.

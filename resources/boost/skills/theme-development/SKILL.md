@@ -88,6 +88,21 @@ slug = "{{ :slug }}"
 - Wildcard parameters use `:slug*` to capture remaining segments.
 - Components are attached in the configuration section using `[componentName]`.
 
+### Translating Pages
+
+When using multisite with different locales, the `translatable` component stores translated page properties per locale, including the URL. The translated URL replaces the page URL in the routing table when the matching site is active, and requests for the default URL redirect to the translated URL.
+
+```ini
+url = "/contact"
+title = "Contact"
+
+[translatable]
+locales[fr][url] = "/contactez"
+locales[fr][title] = "Contactez"
+```
+
+Supported fields per locale entry: `url`, `title`, `description`, `meta_title`, `meta_description`. Locale keys resolve in order: exact site locale (`fr-ca`), then base language (`fr`), falling back to the page's own values per field. Custom fields added to a locale entry resolve in Twig with `translatable.siteProperty('myField')`.
+
 ### Error Pages
 
 Error pages are defined by their URL, not by filename:
@@ -257,6 +272,21 @@ Content files support four extensions:
 - `.txt` - plain text
 - `.md` - Markdown
 
+### Translating Content Blocks
+
+When using multisite with different locales, translate a content block by placing a copy of the file in a subdirectory named after the locale, mirroring the base path from the content root:
+
+```
+content/
+├── welcome.md          ← default locale
+├── blog/intro.htm      ← default locale (nested)
+└── fr/
+    ├── welcome.md      ← French
+    └── blog/intro.htm  ← French (nested)
+```
+
+Locale directories are checked first (exact site locale, then base language, so `fr-ca` shares `fr/`) before falling back to the base file. Directories not matching the active site locale remain directly addressable, e.g. `{% content 'fr/welcome.md' %}`.
+
 ## CMS Components
 
 Components are PHP classes that provide page variables (data) and AJAX handlers (server-side actions). They are attached to pages in the configuration section. You write your own markup using the variables and handlers they provide.
@@ -294,6 +324,7 @@ October CMS ships with Tailor-related components:
 - `global` - make global Tailor records available
 - `resources` - inject assets, variables, and headers
 - `sitePicker` - multisite switching tools
+- `translatable` - translated page properties and URLs per site locale
 
 ### Defining a Component
 
