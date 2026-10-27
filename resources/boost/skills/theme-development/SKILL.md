@@ -1,6 +1,6 @@
 ---
 name: octobercms-theme-development
-description: "Use when creating, modifying, or working with October CMS themes, including pages, layouts, partials, content files, CMS components, Twig markup, or theme assets. Activate when the user mentions themes, Twig templates, CMS pages, page URLs, layout scaffolding, partial rendering, content blocks, or any frontend template task. Do not use for backend admin panel development or plugin PHP code."
+description: "Use when creating, modifying, or working with October CMS themes, including pages, layouts, partials, content files, CMS components, Twig markup, or theme assets. Activate when the user mentions themes, Twig templates, CMS pages, page URLs, layout scaffolding, partial rendering, content blocks, theme assets built with Vite, or any frontend template task. Do not use for backend admin panel development or plugin PHP code."
 license: MIT
 metadata:
   author: octobercms
@@ -534,6 +534,9 @@ Variable | Description
 {{ config('app.name') }}
 {{ env('APP_DEBUG') }}
 
+{# Assets built with Vite #}
+{{ vite(['assets/css/theme.css', 'assets/js/app.js']) }}
+
 {# String helpers #}
 {{ str_limit('Long text...', 50) }}
 {{ html_strip('<p>Hello</p>') }}
@@ -716,6 +719,25 @@ Combine and minify assets using the `|theme` filter and asset combiner:
 <link href="{{ ['assets/css/reset.css', 'assets/css/style.css']|theme }}" rel="stylesheet" />
 ```
 
+### Vite
+
+Themes can bundle assets with Vite. The theme directory is the Vite root, and the `vite()` function renders the tags for the entry points, reading the manifest and dev server from the theme directory:
+
+```twig
+{{ vite(['assets/css/theme.css', 'assets/js/app.js']) }}
+{{ vite(['assets/js/app.js'], 'assets/build') }}  {# Build directory other than assets/dist #}
+```
+
+`themes/mytheme/vite.config.js` must:
+
+- Write the manifest to `manifest.json` in the build directory: `build.manifest: 'manifest.json'` (`manifest: true` writes `.vite/manifest.json`, which isn't found).
+- Use a relative base for builds: `base: command === 'build' ? './' : '/'`, so built CSS finds its fonts and images.
+- Build to `assets/dist` (`build.outDir`), or pass the directory as the second argument of `vite()`.
+- List the same entry points in `build.rolldownOptions.input` (`rollupOptions` in Vite 7 and earlier).
+- Write the dev server address to a `hot` file in the theme directory while `npm run dev` runs, with a small plugin (Vite doesn't do this on its own). While `hot` exists, `vite()` loads from the dev server; set `server.origin` to the same address and allow the site's `APP_URL` in `server.cors`.
+
+Commit the build in `assets/dist` or build it during deployment; ignore `/hot` and `/node_modules` in the theme. URLs follow `THEMES_ASSET_URL`, and a child theme without its own build uses the parent theme's.
+
 ## Common Pitfalls
 
 - When using components, write your own markup using the page variables and AJAX handlers they provide. Do not use `{% component %}` or create override partials at `partials/{alias}/` unless you have a specific reason.
@@ -729,3 +751,4 @@ Combine and minify assets using the `|theme` filter and asset combiner:
 - Use `hidden = 1` (not `is_hidden`) to hide pages from backend lists.
 - Theme customization values are accessed via `this.theme.field_name` in Twig, not `this.page`.
 - Use `this.page.meta_title` for the HTML `<title>` tag (falls back to `this.page.title`).
+- Load Vite-built theme assets with `{{ vite([...]) }}`, not Laravel's `Vite` facade or `@vite`, which look for the build in the public folder.

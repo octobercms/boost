@@ -8,6 +8,7 @@ This application uses **October CMS**, a Laravel-based content management system
 - **Do not suggest** Laravel form requests for validation - October uses model-based validation via the `Validation` trait.
 - **Do not suggest** Laravel controllers with route model binding - October uses backend controllers with behaviors.
 - **Do not suggest** `resources/views/` Blade templates - October uses Twig-based CMS themes in the `themes/` directory and PHP-based partials in `controllers/` and `models/` directories.
+- **Do not use** `@vite`, the `Vite` facade or `public/build` for theme assets - a theme is its own Vite project, built to `assets/dist` in the theme and loaded with the `{{ vite([...]) }}` Twig function.
 - **Do not use** `php artisan make:model` or `php artisan make:controller` - October has its own scaffolding commands: `php artisan create:plugin`, `php artisan create:model`, `php artisan create:controller`, `php artisan create:component`.
 
 ## Architecture Overview
